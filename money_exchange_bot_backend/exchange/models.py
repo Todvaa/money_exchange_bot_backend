@@ -9,7 +9,8 @@ STATUSES = (
 ROLES = (
         ('Admin', 'Admin'),
         ('User', 'User'),
-        ('Developer', 'Developer')
+        ('Developer', 'Developer'),
+        ('Banned', 'Banned')
     )
 
 
@@ -74,7 +75,7 @@ class Request(models.Model):
     purchased_currency_amount = models.DecimalField(
         verbose_name='Amount of purchased currency',
         max_digits=12,
-        decimal_places=2
+        decimal_places=0
     )
     currency_rate = models.DecimalField(
         verbose_name='Exchange rate',
@@ -93,22 +94,5 @@ class Request(models.Model):
         decimal_places=2
     )
 
-
-class Transaction(models.Model):
-    creator = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='creator'
-    )
-    recipient = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='recipient'
-    )
-    payment_amount = models.DecimalField(
-        verbose_name='Payment amount',
-        max_digits=7,
-        decimal_places=2,
-    )
+    class Meta:
+        ordering = ['creation_date']

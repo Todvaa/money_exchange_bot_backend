@@ -1,6 +1,6 @@
 from django.db import IntegrityError
+from django.shortcuts import get_object_or_404
 from rest_framework import mixins, viewsets, filters
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 
 from exchange.models import User, Request
 from api.serializers import (
@@ -9,32 +9,28 @@ from api.serializers import (
 from api.pagination import RequestUserPagination
 
 
-class ListViewSet(
-    mixins.ListModelMixin, viewsets.GenericViewSet
-):
-    pass
-
-
 class CreateListViewSet(
     mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
 ):
     pass
 
 
-class CreateRetrieveListViewSet(
+class CreateRetrieveListUpdateViewSet(
     mixins.CreateModelMixin, mixins.RetrieveModelMixin,
-    mixins.ListModelMixin, viewsets.GenericViewSet
+    mixins.ListModelMixin, mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
 ):
     pass
 
 
-class UpdateListViewSet(
-    mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+class RetrieveUpdateListViewSet(
+    mixins.UpdateModelMixin, mixins.ListModelMixin,
+    mixins.RetrieveModelMixin, viewsets.GenericViewSet
 ):
     pass
 
 
-class UserViewSet(CreateRetrieveListViewSet):
+class UserViewSet(CreateRetrieveListUpdateViewSet):
     queryset = User.objects.all()
     filter_backends = (filters.SearchFilter,)
     search_fields = ('referrer__id',)
@@ -45,10 +41,12 @@ class UserViewSet(CreateRetrieveListViewSet):
         referrer_id = self.request.data['referrer']
         try:
             referrer = User.objects.get(id=referrer_id)
-            #todo: send message to referrer
         except User.DoesNotExist:
             referrer = None
-        serializer.save(referrer=referrer, id=chat_id)
+        try:
+            serializer.save(referrer=referrer, id=chat_id)
+        except IntegrityError:
+            pass
 
 
 class RequestUserViewSet(CreateListViewSet):
@@ -59,23 +57,45 @@ class RequestUserViewSet(CreateListViewSet):
     search_fields = ('status',)
 
     def get_queryset(self):
-        owner_id = self.kwargs.get("owner_id")
+        owner_id = self.kwargs.get('owner_id')
         requests = Request.objects.filter(owner_id=owner_id)
         return requests.all()
 
     def perform_create(self, serializer):
-        owner_id = self.kwargs.get("owner_id")
+        owner_id = self.kwargs.get('owner_id')
         serializer.save(owner_id=owner_id)
 
 
-class RequestAdminViewSet(UpdateListViewSet):
+class RequestAdminViewSet(RetrieveUpdateListViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ('status', 'owner',)
+    search_fields = ('status',)
     ordering_fields = ('creation_date',)
 
 
-class UserAdminViewSet(ListViewSet):
+class UserAdminViewSet(RetrieveUpdateListViewSet):
     queryset = User.objects.all()
     serializer_class = UserAdminSerializer
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ('role',)
+    ordering_fields = ('fee',)
+
+    def get_queryset(self):
+        if self.action == 'list':
+            users = User.objects.filter(fee__gt=0)
+            return users.all()
+        else:
+            return super().get_queryset()
+
+    def perform_update(self, serializer):
+        user = get_object_or_404(User, id=self.kwargs['pk'])
+        if 'fee' in self.request.data:
+            fee = float(user.fee) + float(self.request.data['fee'])
+            serializer.save(fee=fee)
+        if 'paid_fee' in self.request.data:
+            paid_fee = float(user.paid_fee) + float(self.request.data['paid_fee'])
+            fee = float(user.fee) - paid_fee
+            serializer.save(fee=fee, paid_fee=paid_fee)
+        if 'role' in self.request.data:
+            serializer.save(role=self.request.data['role'])

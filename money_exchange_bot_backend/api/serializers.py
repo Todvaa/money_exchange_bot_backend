@@ -6,14 +6,15 @@ from exchange.models import User, Request
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('username', 'fee', 'paid_fee',)
-        read_only_fields = ('id', 'referrer', 'admin',)
+        fields = ('username', 'fee', 'paid_fee', 'role')
+        read_only_fields = ('id', 'referrer',)
         model = User
 
 
 class UserAdminSerializer(serializers.ModelSerializer):
+
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'username',  'role', 'referrer', 'paid_fee', 'fee')
         model = User
 
 
