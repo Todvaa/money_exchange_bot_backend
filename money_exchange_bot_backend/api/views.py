@@ -48,6 +48,12 @@ class UserViewSet(CreateRetrieveListUpdateViewSet):
         except IntegrityError:
             pass
 
+    def perform_update(self, serializer):
+        if self.request.data['username'] == '0':
+            serializer.save(username=None)
+        else:
+            return super().perform_update(serializer)
+
 
 class RequestUserViewSet(CreateListViewSet):
     serializer_class = RequestSerializer
@@ -82,7 +88,10 @@ class UserAdminViewSet(RetrieveUpdateListViewSet):
     ordering_fields = ('fee',)
 
     def get_queryset(self):
-        if self.action == 'list':
+        if (
+                self.action == 'list' and
+                self.request.query_params['search'] != 'banned'
+        ):
             users = User.objects.filter(fee__gt=0)
             return users.all()
         else:

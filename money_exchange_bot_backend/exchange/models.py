@@ -21,7 +21,10 @@ class User(AbstractBaseUser):
         unique=True,
         null=False
     )
-    username = models.CharField(max_length=50)
+    username = models.CharField(
+        max_length=50,
+        null=True
+    )
     role = models.CharField(
         choices=ROLES,
         max_length=10,
