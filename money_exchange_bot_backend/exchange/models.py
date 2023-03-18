@@ -15,6 +15,7 @@ ROLES = (
 
 
 class User(AbstractBaseUser):
+    """Model for users"""
     id = models.IntegerField(
         primary_key=True,
         editable=False,
@@ -53,6 +54,7 @@ class User(AbstractBaseUser):
 
 
 class Request(models.Model):
+    """Model for money exchange requests"""
     status = models.CharField(
         choices=STATUSES,
         max_length=10,

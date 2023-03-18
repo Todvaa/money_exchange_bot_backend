@@ -31,6 +31,7 @@ class RetrieveUpdateListViewSet(
 
 
 class UserViewSet(CreateRetrieveListUpdateViewSet):
+    """ViewSet for User with user access"""
     queryset = User.objects.all()
     filter_backends = (filters.SearchFilter,)
     search_fields = ('referrer__id',)
@@ -56,6 +57,7 @@ class UserViewSet(CreateRetrieveListUpdateViewSet):
 
 
 class RequestUserViewSet(CreateListViewSet):
+    """ViewSet for Request with user access"""
     serializer_class = RequestSerializer
     filter_backends = (filters.OrderingFilter, filters.SearchFilter,)
     pagination_class = RequestUserPagination
@@ -73,6 +75,7 @@ class RequestUserViewSet(CreateListViewSet):
 
 
 class RequestAdminViewSet(RetrieveUpdateListViewSet):
+    """ViewSet for Request with admin access"""
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
@@ -81,6 +84,7 @@ class RequestAdminViewSet(RetrieveUpdateListViewSet):
 
 
 class UserAdminViewSet(RetrieveUpdateListViewSet):
+    """ViewSet for User with admin access"""
     queryset = User.objects.all()
     serializer_class = UserAdminSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
