@@ -2,11 +2,11 @@
 ## Description
 This project was created in order to automate the work of an administrator at a currency exchange office in Sri Lanka for Russians.
 - Dynamic rate based on data received via the Binance API.
-- Implemented referral system.
-- The logic of the bot and data storage is divided into services. Synchronous implementation via API. 
+- Realized referral system.
+- The logic of the bot and data storage is divided into services. Synchronous realized by API. 
 - Admin and user have different interface
 
-For correct work, the second part of the project is required. You can find it on this link:
+This service stores data and logic of work. Interface for working with Telegram API on a separate service. You can find it on this link:
 https://github.com/Todvaa/money_exchange_bot
 
 ## Launch  
