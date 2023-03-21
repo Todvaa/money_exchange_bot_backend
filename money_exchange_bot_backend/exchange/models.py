@@ -16,7 +16,7 @@ ROLES = (
 
 class User(AbstractBaseUser):
     """Model for users"""
-    id = models.IntegerField(
+    id = models.BigIntegerField(
         primary_key=True,
         editable=False,
         unique=True,
