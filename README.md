@@ -8,7 +8,7 @@ https://github.com/Todvaa/money_exchange_bot
 
 ## Launch  
 1. Install requirements in the virtual environment.
-<br><pre>pip install requirements.txt</pre><br>
+<br><pre>pip install -r requirements.txt</pre><br>
 2. Create and fill out a file ".env"
 <br><pre>cp .env.dist .env</pre><br>
 3. Run the migrations.  
